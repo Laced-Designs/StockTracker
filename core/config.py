@@ -11,3 +11,5 @@ class Settings(BaseSettings):
     window: int = 30
     neighbors: int = 12
     alert_threshold: float = 0.75
+    paper_live_poll: bool = False
+    paper_auto_challenge: bool = False

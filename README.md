@@ -1,5 +1,7 @@
 # MarketPulse
 
+A token trading lab is available at `/paper`: one token equals $1 of simulated buying power. It includes isolated practice accounts, historical replay, live-quote plumbing, auditable orders, performance analytics and the fixed seven-day agent challenge. See [PAPER_TRADING.md](PAPER_TRADING.md) for execution assumptions, the empirical rehearsal, live-data prerequisites and the current cash-until-validated agent policy.
+
 Now includes real US-stock and cryptocurrency archive ingestion, durable backfill jobs, a 60/20/20 chronological predictability lab, and an interactive options learning page. See [HISTORY.md](HISTORY.md) for the current data scope, commands, methodology and network limitations. The default page is the evidence lab; the earlier pattern terminal remains at `/terminal`.
 
 Runnable Python 3.11+ quantitative research application with four pipelines: public-data ingestion → DuckDB → causal features and historical matrix → cosine/DTW analog inference → FastAPI REST/WebSocket dashboard.

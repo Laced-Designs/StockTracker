@@ -16,7 +16,18 @@ import json
 async def run(args):
     cfg=Settings();store=DuckDBStore(args.database or cfg.database_path)
     try:
-        if args.command=="track":
+        if args.command=="paper-rehearsal":
+            from paper.rehearsal import run_rehearsal
+            report=run_rehearsal(store,lookback_days=args.days)
+            output=Path(args.output);output.parent.mkdir(parents=True,exist_ok=True);output.write_text(json.dumps(report,indent=2))
+            print(json.dumps({'report':str(output),'summary':report['summary']},indent=2))
+        elif args.command=="paper-status":
+            from paper.ledger import PaperExchange
+            from paper.challenge import ChallengeRunner
+            runner=ChallengeRunner(PaperExchange(store),cfg.paper_auto_challenge)
+            runner.step();status=runner.status();Path(args.output).parent.mkdir(parents=True,exist_ok=True);Path(args.output).write_text(json.dumps(status,indent=2))
+            print(json.dumps(status,indent=2))
+        elif args.command=="track":
             from ingestion.tracker import track
             await track(store,cycles=args.cycles,interval_seconds=args.interval_seconds,budget=args.budget,stocks=args.stocks.split(',') if args.stocks else None)
         elif args.command=="bootstrap":
@@ -60,6 +71,8 @@ if __name__=="__main__":
     p=sub.add_parser('plan');p.add_argument('--stocks',help='comma-separated symbols; defaults to liquid US stocks and ETFs');p.add_argument('--all-known-stocks',action='store_true')
     p=sub.add_parser('harvest');p.add_argument('--limit',type=int,default=20);p.add_argument('--retry-failed',action='store_true');p.add_argument('--provider',choices=['yahoo','binance_archive'])
     p=sub.add_parser('track');p.add_argument('--cycles',type=int,default=1,help='0 keeps running');p.add_argument('--interval-seconds',type=int,default=3600);p.add_argument('--budget',type=int,default=20);p.add_argument('--stocks')
+    p=sub.add_parser('paper-rehearsal');p.add_argument('--days',type=int,default=180);p.add_argument('--output',default='reports/paper-rehearsal.json')
+    p=sub.add_parser('paper-status');p.add_argument('--output',default='reports/paper-challenge-status.json')
     p=sub.add_parser('coverage')
     p=sub.add_parser('research');p.add_argument('--symbols');p.add_argument('--sources');p.add_argument('--max-symbols',type=int);p.add_argument('--output',default='reports/predictability.json')
     p=sub.add_parser("ingest");p.add_argument("symbol");p.add_argument("--provider",choices=["yahoo","alpha"],default="yahoo");p.add_argument("--start",required=True);p.add_argument("--end",required=True);p.add_argument("--interval",choices=["1m","15m","1h","1d"],default="1d")

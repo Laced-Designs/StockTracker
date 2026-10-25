@@ -9,3 +9,7 @@ python -c "import gzip,pathlib; p=pathlib.Path('reports/predictability.json'); p
 ```
 
 Downloaded datasets, embedded databases, job runtime state and `.env` remain local. Recreate them with the bootstrap, plan and research commands in `HISTORY.md`. Source access and current upstream snapshots can differ from this saved experiment; report fingerprints identify the original inputs.
+
+## Paper-trading experiments
+
+`PAPER_REHEARSAL.md` and `paper-rehearsal-summary.json` summarize the 910 historical runs. Full traces are in `paper-rehearsal.json.gz`; this is historical learning data, not a live challenge result. `paper-challenge-status.json` is a timestamped exported snapshot, not a live feed; check its recorded times before treating it as current. `paper-smoke-test.json` is the independent app API exercise.

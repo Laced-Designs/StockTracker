@@ -16,6 +16,12 @@ from ingestion.live import AlpacaStream, MinuteAggregator
 from core.history import HistoryCatalog
 from engine.research import series_catalog,load_series
 from engine.options import OptionScenario,analyze_option
+from paper.ledger import PaperExchange
+from paper.challenge import ChallengeRunner,challenge_loop
+from paper.live import quote_loop
+from paper.models import Quote
+from api.paper_routes import router as paper_router
+from decimal import Decimal
 
 log=structlog.get_logger()
 
@@ -31,6 +37,14 @@ def create_app(settings=None):
         app.state.store=store
         app.state.catalog=HistoryCatalog(store)
         app.state.stream_error=None
+        app.state.paper=PaperExchange(store)
+        app.state.challenge=ChallengeRunner(app.state.paper,settings.paper_auto_challenge)
+        app.state.paper_feed={'error':None,'last_success':None}
+        paper_tasks=[]
+        if settings.paper_live_poll:
+            paper_tasks.append(asyncio.create_task(quote_loop(app.state.paper,app.state.paper_feed)))
+        if settings.paper_auto_challenge:
+            paper_tasks.append(asyncio.create_task(challenge_loop(app.state.challenge)))
         if settings.demo and store.bars("SPY",source="synthetic").empty:
             await asyncio.to_thread(store.upsert_bars,demo_bars())
         task=None
@@ -39,6 +53,10 @@ def create_app(settings=None):
             async def on_tick(tick):
                 inserted=await asyncio.to_thread(store.tick,tick)
                 if not inserted: return
+                try:
+                    price=Decimal(str(tick.price))
+                    app.state.paper.publish(Quote(symbol=tick.symbol,source='alpaca_iex',market_time=tick.timestamp,observed_at=datetime.now(timezone.utc),bid=price*Decimal('.9995'),ask=price*Decimal('1.0005'),mode='live',spread_basis='modeled 10 bps spread around IEX last trade; not actual bid/ask'))
+                except ValueError:pass
                 bar=aggregator.add(tick)
                 if bar is None: return
                 await asyncio.to_thread(store.upsert_bars,[bar])
@@ -60,8 +78,13 @@ def create_app(settings=None):
             task.cancel()
             try: await task
             except asyncio.CancelledError: pass
+        for paper_task in paper_tasks:paper_task.cancel()
+        for paper_task in paper_tasks:
+            try:await paper_task
+            except asyncio.CancelledError:pass
         store.close()
-    app=FastAPI(title="MarketPulse",version="0.1.0",lifespan=lifespan)
+    app=FastAPI(title="MarketPulse",version="0.2.0",lifespan=lifespan)
+    app.include_router(paper_router)
     def compute(symbol,interval,source):
         frame=app.state.store.bars(symbol,interval,source=source)
         if frame.empty: raise ValueError("no data for selected symbol/source/interval")
