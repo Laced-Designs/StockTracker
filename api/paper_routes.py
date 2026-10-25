@@ -64,3 +64,9 @@ def rehearsal(request:Request):
     store=request.app.state.store
     with store.lock:row=store.conn.execute('SELECT summary FROM paper_trials ORDER BY created_at DESC LIMIT 1').fetchone()
     return json.loads(row[0]) if row else {'status':'not_run','summary':[]}
+
+
+@router.get('/api/paper/study')
+def study_status(request:Request):
+    from paper.week_study import WeekStudy
+    return WeekStudy(request.app.state.store).status()

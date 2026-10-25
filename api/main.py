@@ -21,6 +21,7 @@ from paper.challenge import ChallengeRunner,challenge_loop
 from paper.live import quote_loop
 from paper.models import Quote
 from api.paper_routes import router as paper_router
+from paper.week_study import WeekStudy,study_loop
 from decimal import Decimal
 
 log=structlog.get_logger()
@@ -45,6 +46,8 @@ def create_app(settings=None):
             paper_tasks.append(asyncio.create_task(quote_loop(app.state.paper,app.state.paper_feed)))
         if settings.paper_auto_challenge:
             paper_tasks.append(asyncio.create_task(challenge_loop(app.state.challenge)))
+        if settings.paper_study_enabled:
+            paper_tasks.append(asyncio.create_task(study_loop(WeekStudy(store))))
         if settings.demo and store.bars("SPY",source="synthetic").empty:
             await asyncio.to_thread(store.upsert_bars,demo_bars())
         task=None

@@ -13,3 +13,4 @@ class Settings(BaseSettings):
     alert_threshold: float = 0.75
     paper_live_poll: bool = False
     paper_auto_challenge: bool = False
+    paper_study_enabled: bool = False

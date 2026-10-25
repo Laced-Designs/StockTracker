@@ -76,3 +76,7 @@ The summary is persisted in `paper_trials` and shown in the app via `/api/paper/
 ## Frozen cross-market starting baseline
 
 Run `python cli.py --database data/history.duckdb paper-baseline --windows 13` for a fixed 500-token-per-scenario comparison across AAPL/MSFT/JPM and BTC/ETH/LTC/DOGE/ADA. It adds a 25%-budget buy/hold control, preserves 10-bps fees and next-observation execution, and exports decisions and per-run CSV data. Results are shown in the app as the latest experiment. See [reports/baseline-v1/README.md](reports/baseline-v1/README.md). This is a descriptive historical starting point, not new live profit or an independent future validation.
+
+## Seven-day spot/options study
+
+The new study adds actual-time checkpoints, isolated spot study arms and clearly separated theoretical options sensitivity cases. See [SEVEN_DAY_STUDY.md](SEVEN_DAY_STUDY.md). The original challenge deadline is unchanged.

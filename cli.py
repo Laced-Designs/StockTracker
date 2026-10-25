@@ -16,7 +16,13 @@ import json
 async def run(args):
     cfg=Settings();store=DuckDBStore(args.database or cfg.database_path)
     try:
-        if args.command=="paper-baseline":
+        if args.command=="paper-study-step":
+            from paper.week_study import WeekStudy
+            study=WeekStudy(store);study.checkpoint();print(json.dumps(study.export(args.output),indent=2))
+        elif args.command=="paper-option-tests":
+            from paper.option_tests import run_option_tests
+            print(json.dumps(run_option_tests(store,windows=args.windows,output=args.output),indent=2))
+        elif args.command=="paper-baseline":
             from paper.baseline import run_baseline
             print(json.dumps(run_baseline(store,windows=args.windows,output_dir=args.output),indent=2))
         elif args.command=="paper-rehearsal":
@@ -74,6 +80,8 @@ if __name__=="__main__":
     p=sub.add_parser('plan');p.add_argument('--stocks',help='comma-separated symbols; defaults to liquid US stocks and ETFs');p.add_argument('--all-known-stocks',action='store_true')
     p=sub.add_parser('harvest');p.add_argument('--limit',type=int,default=20);p.add_argument('--retry-failed',action='store_true');p.add_argument('--provider',choices=['yahoo','binance_archive'])
     p=sub.add_parser('track');p.add_argument('--cycles',type=int,default=1,help='0 keeps running');p.add_argument('--interval-seconds',type=int,default=3600);p.add_argument('--budget',type=int,default=20);p.add_argument('--stocks')
+    p=sub.add_parser('paper-study-step');p.add_argument('--output',default='reports/week-study/status.json')
+    p=sub.add_parser('paper-option-tests');p.add_argument('--windows',type=int,default=13);p.add_argument('--output',default='reports/week-study')
     p=sub.add_parser('paper-baseline');p.add_argument('--windows',type=int,default=13);p.add_argument('--output',default='reports/baseline-v1')
     p=sub.add_parser('paper-rehearsal');p.add_argument('--days',type=int,default=180);p.add_argument('--output',default='reports/paper-rehearsal.json')
     p=sub.add_parser('paper-status');p.add_argument('--output',default='reports/paper-challenge-status.json')
