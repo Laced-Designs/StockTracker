@@ -13,13 +13,13 @@ from paper.analytics import account_analytics
 
 ASSETS=('BTC-USD','ETH-USD','LTC-USD','DOGE-USD','ADA-USD')
 
-def episode(exchange,frame,symbol,start,policy,fee_bps):
-    source='coinmetrics_reference';initial=frame.iloc[start]
+def episode(exchange,frame,symbol,start,policy,fee_bps,*,source="coinmetrics_reference",entry_budget="500"):
+    initial=frame.iloc[start]
     a,_=exchange.create(f'{symbol} {policy} fees {fee_bps}','replay',500,source=source,symbol=symbol,cursor=initial.timestamp.to_pydatetime())
     with exchange.transaction():
         a=exchange._load(a['id']);a['fee_bps']=str(fee_bps);exchange._save(a)
     account_id=a['id'];exchange.publish(HistoricalReplay.quote(source,symbol,initial))
-    forecasts=[]
+    forecasts=[];decisions=[]
     for offset in range(8):
         row=frame.iloc[start+offset]
         if offset:
@@ -31,17 +31,19 @@ def episode(exchange,frame,symbol,start,policy,fee_bps):
         a=exchange.get(account_id);history=frame.close.iloc[:start+offset+1]
         fast=float(history.iloc[-5:].mean());slow=float(history.iloc[-20:].mean())
         signal=fast>slow and float(history.iloc[-1]/history.iloc[-6]-1)>0
-        if policy=='momentum':forecasts.append({'asof':row.timestamp.isoformat(),'prediction_up':bool(signal),'actual_up':bool(frame.close.iloc[start+offset+1]>row.close)})
+        if policy=='momentum':forecasts.append({'asof':row.timestamp.isoformat(),'label_time':frame.timestamp.iloc[start+offset+1].isoformat(),'prediction_up':bool(signal),'actual_up':bool(frame.close.iloc[start+offset+1]>row.close),'diagnostic_only':'next-observation direction; execution at that observation cannot capture the preceding move'})
         position=next((p for p in a['positions'].values() if Decimal(p['quantity'])>0),None)
         side=None;budget=None;qty=None
         if offset==6 and position:side='sell';qty=position['quantity']
-        elif offset<6 and policy=='buy_hold' and offset==0:side='buy';budget='500'
+        elif offset<6 and policy=='buy_hold' and offset==0:side='buy';budget=str(entry_budget)
         elif offset<6 and policy=='momentum':
             if position:
                 unit_cost=Decimal(position['cost_basis'])/Decimal(position['quantity'])
                 move=Decimal(str(row.close))/unit_cost-1
                 if not signal or move<=Decimal('-.05') or move>=Decimal('.10'):side='sell';qty=position['quantity']
             elif signal:side='buy';budget=str(min(Decimal(a['cash_tokens']),Decimal('125')))
+        reason=('precommitted exit for end of episode' if offset==6 and position else 'fixed buy/hold entry' if policy=='buy_hold' and side=='buy' else 'past-price momentum entry' if side=='buy' else 'momentum signal/close-observed risk exit' if side=='sell' else 'cash benchmark' if policy=='cash' else 'hold position' if position else 'no entry signal')
+        decisions.append({'asof':row.timestamp.isoformat(),'features_through':row.timestamp.isoformat(),'action':side or 'hold','reason':reason,'fast_ma':fast,'slow_ma':slow,'momentum_5':float(history.iloc[-1]/history.iloc[-6]-1),'token_budget':budget,'quantity':qty})
         if side:
             order=OrderRequest(client_order_id=f'day_{offset}',symbol=symbol,source=source,side=side,token_budget=budget,quantity=qty)
             exchange.submit(account_id,order)
@@ -52,7 +54,7 @@ def episode(exchange,frame,symbol,start,policy,fee_bps):
       'fills':analytics['fill_count'],'max_drawdown_pct':analytics['max_drawdown_pct'],
       'target_reached_at_end':Decimal(analytics['valuation']['equity_tokens'])>=1000,
       'directional_accuracy':float(np.mean([x['prediction_up']==x['actual_up'] for x in forecasts])) if forecasts else None,
-      'orders':exchange.orders(account_id),'equity_curve':analytics['equity_curve'],'forecasts':forecasts}
+      'source':source,'entry_budget':entry_budget if policy=='buy_hold' else '125' if policy=='momentum' else '0','decisions':decisions,'orders':exchange.orders(account_id),'equity_curve':analytics['equity_curve'],'forecasts':forecasts}
 
 def run_rehearsal(store,lookback_days=180):
     memory=DuckDBStore(':memory:');exchange=PaperExchange(memory);episodes=[]

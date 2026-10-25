@@ -72,3 +72,7 @@ The summary is persisted in `paper_trials` and shown in the app via `/api/paper/
 - `GET /api/paper/accounts/{id}/history` — audit events and past replay observations.
 - `GET /api/paper/challenge` — read-only agent challenge, readiness, benchmarks and decisions.
 - `GET /api/paper/rehearsal` — most recent historical experiment summary.
+
+## Frozen cross-market starting baseline
+
+Run `python cli.py --database data/history.duckdb paper-baseline --windows 13` for a fixed 500-token-per-scenario comparison across AAPL/MSFT/JPM and BTC/ETH/LTC/DOGE/ADA. It adds a 25%-budget buy/hold control, preserves 10-bps fees and next-observation execution, and exports decisions and per-run CSV data. Results are shown in the app as the latest experiment. See [reports/baseline-v1/README.md](reports/baseline-v1/README.md). This is a descriptive historical starting point, not new live profit or an independent future validation.

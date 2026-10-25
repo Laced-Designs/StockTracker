@@ -26,8 +26,8 @@
     "initial_benchmarks": {},
     "last_valuation": {
       "account_id": "seven-day-agent",
-      "asof": "2026-10-25T17:38:44.120511+00:00",
-      "recorded_at": "2026-10-25T17:38:44.120511+00:00",
+      "asof": "2026-10-25T17:51:08.376422+00:00",
+      "recorded_at": "2026-10-25T17:51:08.376422+00:00",
       "cash_tokens": "500.00000000",
       "equity_tokens": "500.00000000",
       "pnl_tokens": "0E-8",
@@ -48,8 +48,8 @@
     "target_observed_before_deadline": false,
     "_last_recorded_valuation": {
       "account_id": "seven-day-agent",
-      "asof": "2026-10-25T17:38:44.111629+00:00",
-      "recorded_at": "2026-10-25T17:38:44.111629+00:00",
+      "asof": "2026-10-25T17:51:08.370657+00:00",
+      "recorded_at": "2026-10-25T17:51:08.370657+00:00",
       "cash_tokens": "500.00000000",
       "equity_tokens": "500.00000000",
       "pnl_tokens": "0E-8",
@@ -70,8 +70,8 @@
   },
   "valuation": {
     "account_id": "seven-day-agent",
-    "asof": "2026-10-25T17:38:44.120511+00:00",
-    "recorded_at": "2026-10-25T17:38:44.120511+00:00",
+    "asof": "2026-10-25T17:51:08.376422+00:00",
+    "recorded_at": "2026-10-25T17:51:08.376422+00:00",
     "cash_tokens": "500.00000000",
     "equity_tokens": "500.00000000",
     "pnl_tokens": "0E-8",
@@ -122,6 +122,22 @@
     },
     {
       "timestamp": "2026-10-25T17:38:44.100002+00:00",
+      "action": "blocked",
+      "reason": "runner disabled",
+      "readiness": {
+        "runner_enabled": false,
+        "fresh_crypto_symbols": [],
+        "fresh_stock_symbols": [],
+        "coinbase_destination_allowed": false,
+        "needed": [
+          "fresh Coinbase USD quotes for crypto or authenticated Alpaca stream for US stocks",
+          "running FastAPI process with MP_PAPER_LIVE_POLL=true and MP_PAPER_AUTO_CHALLENGE=true"
+        ],
+        "no_real_money_execution": true
+      }
+    },
+    {
+      "timestamp": "2026-10-25T17:51:08.365760+00:00",
       "action": "blocked",
       "reason": "runner disabled",
       "readiness": {
