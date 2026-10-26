@@ -4,6 +4,9 @@ This study is separate from the original 500-to-1,000-token challenge, whose Nov
 
 Each test arm uses its own **500 simulated tokens**, with 1 token representing $1 USD. Results are per isolated experiment; virtual allocations are not pooled into one enlarged challenge balance. User clarification: 1-to-1 means **fully funded spot trading without borrowing**, not a 1:1 reward/risk ratio.
 
+
+Trades may open, close and reopen throughout the week whenever the strategy signals and available cash permit; the seven-day window is an evaluation period, not a minimum holding period. The existing momentum arm supports repeated round trips, while buy-and-hold arms remain comparison benchmarks. The goal remains growing the original 500-token challenge account to 1,000 net tokens after costs by its original deadline. Separate experimental balances are never pooled to satisfy that goal. Report any first verified crossing of 1,000 separately from the ending balance. No strategy is required to trade without a qualifying signal or usable quotes.
+
 ## Experiment lanes
 
 | Lane | Execution / data | Current state |
