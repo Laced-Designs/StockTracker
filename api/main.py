@@ -21,6 +21,7 @@ from paper.challenge import ChallengeRunner,challenge_loop
 from paper.live import quote_loop
 from paper.models import Quote
 from api.paper_routes import router as paper_router
+from api.overview import router as overview_router
 from paper.week_study import WeekStudy,study_loop
 from decimal import Decimal
 
@@ -42,12 +43,15 @@ def create_app(settings=None):
         app.state.challenge=ChallengeRunner(app.state.paper,settings.paper_auto_challenge)
         app.state.paper_feed={'error':None,'last_success':None}
         paper_tasks=[]
+        app.state.collectors={}
         if settings.paper_live_poll:
-            paper_tasks.append(asyncio.create_task(quote_loop(app.state.paper,app.state.paper_feed)))
+            app.state.collectors['quotes']=asyncio.create_task(quote_loop(app.state.paper,app.state.paper_feed))
+            paper_tasks.append(app.state.collectors['quotes'])
         if settings.paper_auto_challenge:
             paper_tasks.append(asyncio.create_task(challenge_loop(app.state.challenge)))
         if settings.paper_study_enabled:
-            paper_tasks.append(asyncio.create_task(study_loop(WeekStudy(store))))
+            app.state.collectors['study']=asyncio.create_task(study_loop(WeekStudy(store)))
+            paper_tasks.append(app.state.collectors['study'])
         if settings.demo and store.bars("SPY",source="synthetic").empty:
             await asyncio.to_thread(store.upsert_bars,demo_bars())
         task=None
@@ -85,9 +89,11 @@ def create_app(settings=None):
         for paper_task in paper_tasks:
             try:await paper_task
             except asyncio.CancelledError:pass
+            except Exception as exc:log.error("collector_failed",error_type=type(exc).__name__)
         store.close()
     app=FastAPI(title="MarketPulse",version="0.2.0",lifespan=lifespan)
     app.include_router(paper_router)
+    app.include_router(overview_router)
     def compute(symbol,interval,source):
         frame=app.state.store.bars(symbol,interval,source=source)
         if frame.empty: raise ValueError("no data for selected symbol/source/interval")
@@ -99,7 +105,11 @@ def create_app(settings=None):
         app.state.store.signal(signal)
         return signal
     @app.get("/",response_class=HTMLResponse)
-    def dashboard(): return Path(__file__).with_name("research.html").read_text()
+    def dashboard(): return Path(__file__).with_name("overview.html").read_text()
+    @app.get("/tasks",response_class=HTMLResponse)
+    @app.get("/reports",response_class=HTMLResponse)
+    @app.get("/bugs",response_class=HTMLResponse)
+    def workspace_pages(): return Path(__file__).with_name("overview.html").read_text()
     @app.get("/terminal",response_class=HTMLResponse)
     def terminal(): return Path(__file__).with_name("dashboard.html").read_text()
     @app.get('/research',response_class=HTMLResponse)
