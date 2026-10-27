@@ -116,12 +116,13 @@
     },
     "interpretation_confirmed_by_user": true
   },
-  "asof": "2026-10-26T17:26:16.356841+00:00",
+  "asof": "2026-10-27T17:34:49.752048+00:00",
   "phase": "collecting",
-  "checkpoint_count": 5,
+  "checkpoint_count": 6,
   "days_recorded": [
     0,
-    1
+    1,
+    2
   ],
   "latest_daily_checks": [
     {
@@ -148,6 +149,21 @@
       "fresh_quotes": [],
       "spot_orders_submitted_this_checkpoint": 0,
       "quote_cutoff": "2026-10-26T17:26:16.219370+00:00",
+      "spot_arms": [],
+      "coinbase_destination_allowed": false,
+      "quoted_options_status": "blocked_no_option_chain_connector",
+      "quoted_option_fills": 0,
+      "note": "This checkpoint also invokes the eligible spot manager; submitted orders and fills are recorded separately in the ledger. It submits no quoted-option orders. Archived or theoretical results do not count as forward trades."
+    },
+    {
+      "study_id": "spot-options-week-v1",
+      "day": 2,
+      "observed_at": "2026-10-27T17:34:24.143942+00:00",
+      "focus": "Review decision timestamps, next-quote execution and prediction horizons",
+      "spot_live_status": "blocked_no_fresh_quotes",
+      "fresh_quotes": [],
+      "spot_orders_submitted_this_checkpoint": 0,
+      "quote_cutoff": "2026-10-27T17:34:24.143942+00:00",
       "spot_arms": [],
       "coinbase_destination_allowed": false,
       "quoted_options_status": "blocked_no_option_chain_connector",
