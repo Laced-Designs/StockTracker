@@ -75,3 +75,11 @@ python -m models.research
 ```
 
 The last command writes a clearly labeled synthetic calibration report under `artifacts/`, never funding or advancing paper accounts. Browser acceptance steps and deployment limitations are in [OPERATIONS.md](OPERATIONS.md). No previous study data, scheduled trading tasks or old implementation has been reused or resumed.
+
+## Personalized workspace
+
+The side menu separates **Market, Trade, Portfolio, News, Favorites, Goals, Analytics and Learn**. Market shows all configured instruments and a focused chart; trading uses a dedicated ticket with a review step. Workspace tabs support keyboard arrows and direct links such as `/#news` or `/#goals`. On phones, Market/Trade/Portfolio stay in the bottom bar; the top-left menu opens every destination.
+
+Star instruments to build a favorites list; News can filter to those companies and a selected topic. Favorites, the current practice goal and the learning-visit milestone are stored in this browser, not synced to a user profile or server. A goal is tied to its paper account; changing accounts does not pool balances or progress. Progress measures net gain from initial balance toward the saved token target. Unpriced portfolios have unavailable progress. Targets are personal practice plans, not promised returns.
+
+Achievements use recorded account fills, closed positions and cancellations, plus clearly identified browser-local learning progress. Merely submitting an order does not unlock a fill milestone. New acceptance: `python tests/browser_navigation.py` checks favorites/news filters, reload persistence, goal validation/progress, verified milestones, trade confirmation, and mobile navigation against the local demo.

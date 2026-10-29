@@ -52,6 +52,8 @@ def create_app(settings=None):
         m=app.state.market
         fresh=[s for s,q in m.quotes.items() if 0<=time.time()-q['time']<30]
         return dict(status='ready' if fresh and not app.state.task.done() and not m.error else 'degraded',mode=cfg.mode,collector_running=not app.state.task.done(),last_success=m.last_success,error=m.error,cache=m.cache_status,fresh_symbols=fresh,session=market_status(),token_usd=1)
+    @app.get('/api/news')
+    def news():return dict(news=app.state.market.events,mode=cfg.mode)
     @app.get('/api/market')
     def market():return dict(symbols=app.state.market.symbols,quotes=app.state.market.quotes,mode=cfg.mode)
     @app.get('/api/market/{symbol}')

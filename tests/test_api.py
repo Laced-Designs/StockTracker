@@ -23,3 +23,9 @@ def test_live_without_credentials_degrades_without_demo_data():
         assert c.get('/api/market').json()['quotes']=={}
         d=c.get('/api/market/AAPL').json();assert d['bars']==[] and d['depth']['bids']==[]
         assert d['prediction']['status']=='insufficient_history'
+
+def test_news_feed_preserves_demo_provenance_and_availability():
+    with TestClient(create_app(Settings(database_url='sqlite://',tick_seconds=3600))) as c:
+        data=c.get('/api/news').json()
+        assert data['mode']=='demo' and len(data['news'])==18
+        assert all(n['mode']=='demo' and n['available_at']>=n['published_at'] for n in data['news'])

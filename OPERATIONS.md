@@ -31,6 +31,8 @@ No real brokerage execution; no verified listed option chains; no early assignme
 
 ## Verified locally
 
-18 Python tests pass on SQLite; TypeScript and the production Vite build pass. Chromium acceptance covers account creation, a subsequent-quote equity fill, a model-option fill, limit cancellation, positions/activity, analytics, education and a 390px mobile viewport with no horizontal document overflow or browser exceptions. `npm audit` reports zero known vulnerabilities at build time. These checks do not establish provider availability, PostgreSQL load performance or security readiness for a public service.
+19 Python tests pass on SQLite; TypeScript and the production Vite build pass. Chromium acceptance covers account creation, a subsequent-quote equity fill, a model-option fill, limit cancellation, positions/activity, analytics, education and a 390px mobile viewport with no horizontal document overflow or browser exceptions. `npm audit` reports zero known vulnerabilities at build time. These checks do not establish provider availability, PostgreSQL load performance or security readiness for a public service.
 
 Run `python tests/browser_smoke.py` against a locally running demo app for the browser flow (requires installed Chromium at `/usr/bin/chromium`). It creates disposable demo accounts and saves screenshots to `/tmp`. Do not run it against a live-data/shared deployment.
+
+The redesigned personalized navigation is verified with `tests/browser_navigation.py`. Preference storage is browser-local and does not include account access keys. Goals do not modify funds or execution rules. No study automation has been enabled.
